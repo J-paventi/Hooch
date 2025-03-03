@@ -7,6 +7,7 @@
 
 #define MIN_MSG_VAL	  0;
 #define MAX_MSG_VAL	  6;
+#define Q_CHECK_SLEEP	 10;
 #define MIN_DELAY	 10;
 #define MAX_DELAY	 30;
 #define NO_QUEUE	 -1;
@@ -23,8 +24,7 @@ void dataCreator(){
 
 	while(msgid == NO_QUEUE){
 		msgid = msgget(key, IPC_EXCL | 0666);
-		int sleepDelay = getDelayInSeconds();
-		delay(sleepDelay);
+		delay(Q_CHECK_SLEEP);
 	}
 
 	// this is always the very first status message sent to the DR, no exceptions!
