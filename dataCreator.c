@@ -13,22 +13,18 @@
 #define NO_QUEUE	 -1;
 
 void dataCreator(){
-	// Code to check for message queue goes here
-	// check queue
-	// loop start if no queue
-		// wait 10s
-		// if queue exit loop
-	// loop end
+	// default the assumption of no queue to enter while-loop to check for queue
 	int msgid = NO_QUEUE;
-	key_t key = ftok(".", 16535);
+	key_t key = ftok(".", 16535);		// I think this should connect to the message queue memory? I'm not too sure
 
 	while(msgid == NO_QUEUE){
-		msgid = msgget(key, IPC_EXCL | 0666);
+		msgid = msgget(key, IPC_EXCL | 0666);	// checks for the queue but does not make it
 		delay(Q_CHECK_SLEEP);
 	}
 
 	// this is always the very first status message sent to the DR, no exceptions!
 	int status = 0;
+	// put the code to send the message to the queue here and LOG IT
 
 	while(status != 6){
 		int seconds = getDelayInSeconds();
