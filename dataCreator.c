@@ -11,7 +11,7 @@
 #define NO_QUEUE        -1
 #define MAX_BUFFER      40
 
-int getStatusMsg(void);
+int getRandomStatusMsg(void);
 char* statusMsgToSend(int statusNum);
 int getDelayInSeconds(void);
 void delay(int numberOfSeconds);
@@ -34,15 +34,16 @@ void main(){
         while(status != 6){
                 int seconds = getDelayInSeconds();
                 delay(seconds);
-                status = getStatusMsg();
-                // somehow send the status message into the queue
+                status = getRandomStatusMsg();
+                char statusMsg[MAX_BUFFER] = statusMsgToSend(status);
+		// send status message somehow
                 // log the status message
         }
 
         return;
 }
 
-int getStatusMsg(){
+int getRandomStatusMsg(){
         int status = rand()%(MAX_MSG_VAL - MIN_MSG_VAL + 1) + MIN_MSG_VAL;
 
         return status;
@@ -92,4 +93,3 @@ void delay(int numberOfSeconds){
 
         while(clock() < startTime + milliSeconds);
 }
-
