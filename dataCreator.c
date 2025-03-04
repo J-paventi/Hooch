@@ -1,6 +1,8 @@
-#include <time.h>
-#include <stdlib.h>
-#include <sys/ipc.h>
+#include <stdio.h> 
+#include <string.h> 
+#include <time.h> 
+#include <stdlib.h> 
+#include <sys/ipc.h> 
 #include <sys/msg.h>
 
 #define MIN_MSG_VAL      0
@@ -15,32 +17,52 @@ int getRandomStatusMsg(void);
 char* statusMsgToSend(int statusNum);
 int getDelayInSeconds(void);
 void delay(int numberOfSeconds);
+void logStatus(char* logMsg, int statusCode);
 
-void main(){
-        // default the assumption of no queue to enter while-loop to check for queue
-        int msgid = NO_QUEUE;
-        // is this actually sending it, or just writing it? Need to verify this with Craig
-        key_t key = ftok(".", 16535);           // I think this should connect to the message queue memory? I'm not too sure
+void main(){ 
+        FILE* logFP;
+        int statusCode = 0;
+        char statusMsg[MAX_BUFFER];
 
-        while(msgid == NO_QUEUE){
-                msgid = msgget(key, IPC_EXCL | 0666);   // checks for the queue but does not make it
-                delay(MIN_DELAY);
-        }
+        // default the assumption of no queue to enter while-loop to check for queue 
+        int msgid = NO_QUEUE; 
+        // is this actually sending it, or just writing it? Need to verify this with Craig 
+        key_t key = ftok(".", 16535);           // I think this should connect to the message queue memory? I'm not too sure 
+         
+        while(msgid == NO_QUEUE){ 
+                msgid = msgget(key, IPC_EXCL | 0666);   // checks for the queue but does not make it 
+                delay(MIN_DELAY); 
+        } 
+        
+        logStatus(strcpy(statusMsg, statusMsgToSend(statusCode)), statusCode);
 
-        // this is always the very first status message sent to the DR, no exceptions!
-        int status = 0;
-        // put the code to send the message to the queue here and LOG IT
-
-        while(status != 6){
+        while(statusCode != 6){
                 int seconds = getDelayInSeconds();
                 delay(seconds);
-                status = getRandomStatusMsg();
-                char statusMsg[MAX_BUFFER] = statusMsgToSend(status);
-		// send status message somehow
-                // log the status message
+                statusCode = getRandomStatusMsg();
+                logStatus(strcpy(statusMsg, statusMsgToSend(statusCode)), statusCode); 
+                // send status message somehow
         }
+ 
+        return;  
+} 
 
-        return;
+void logStatus(char* logMsg, int statusNum){
+        FILE* logFP;
+        int day;
+        int month;
+        int year;
+        struct tm *info;
+        time_t currentTime; 
+
+        currentTime = time(NULL);
+        info = localtime(&currentTime);
+        day = info->tm_mday;
+        month = info->tm_mon + 1;
+        year = info->tm_year + 1900; 
+        logFP = fopen("/temp/dataCreator.log", "a+");
+        fprintf(logFP, "[%d-%d-%d]: DC[] - MSG SENT - Status [%d] (%s)", year, month, day, statusNum, logMsg);
+        fclose(logFP);
 }
 
 int getRandomStatusMsg(){
