@@ -21,7 +21,7 @@ typedef struct
 typedef struct
 {
     int msgQueueID;
-    intnumverOfDCs;
+    int numberOfDCs;
     DCInfo dc[MAX_DC_ROLES];
 
 } MasterList;
@@ -69,11 +69,18 @@ int main(void)
         }
     }
 
-    masterList = (MasterList*)shmat(shmID, NULL, 0):
+    masterList = (MasterList*)shmat(shmID, NULL, 0);
     if (masterList == (void*)-1)
     {
-        perror("failed to attach shared memory";)
+        perror("failed to attach shared memory");
         exit(EXIT_FAILURE);
     }
+
+    (*masterList).msgQueueID = msgQueueID;
+    (*masterList).numberOfDCs = 0;
+    memset((*masterList).dc, 0, sizeof((masterList).dc));
+
+    sleep(15); // allow time for DCs to Start
+
 }
 
