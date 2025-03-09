@@ -28,6 +28,18 @@ typedef struct
 
 int main(void)
 {
+    key_t msgKey;
+    key_t shmKey;
+    int msgQueueID;
+    int shmID;
 
+    msgKey = ftok(".", MSG_KEY);
+    shmKey = ftok(".", SHM_KEY);
+
+    if (msgKey == -1 || shmKey == -1)
+    {
+        perror("Failed to genrate keys"); //remove later
+        exit(EXIT_FAILURE)
+    }
 }
 
