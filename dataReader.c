@@ -10,8 +10,10 @@
 #define MAX_DC_ROLES 10
 #define SHM_KEY 16535
 #define MSG_KEY 1234 //temporary key number
+#define INACTIVE_THRESHOLD 35 //seconds
 
 void removeMachineFromList(MasterList* masterList, int index);
+void checkInactiveMachines(MasterList* masterList);
 
 typedef struct 
 {
@@ -50,7 +52,7 @@ int main(void)
 
     if (msgKey == -1 || shmKey == -1)
     {
-        perror("Failed to genrate keys"); //remove later
+        perror("Failed to generate keys"); //remove later
         exit(EXIT_FAILURE);
     }
 
@@ -110,6 +112,8 @@ else
 
     while(1)
     {
+        checkInactiveMachines(masterList);
+        
         if (msgrcv(masterList->msgQueueID, &incomingMessage, sizeof(incomingMessage) - sizeof(long), 0, 0) == -1)
         {
             perror("msgrcv failed"); // remove later
@@ -119,7 +123,7 @@ else
         int machineID = incomingMessage.machineID;
         int statusCode = incomingMessage.statusCode;
 
-        //check if this machine is aleady in master list
+        //check if this machine is already in master list
         int found = 0;
         for (int i = 0; i < masterList->numberOfDCs; i++)
         {
@@ -134,7 +138,7 @@ else
                 }
                 else
                 {
-                    printf("DC-%02d [%d] updated in master list MSG RECEVIED - Status: %d (%s)\n", i + 1, machineID, statusCode, incomingMessage.statusMessage);
+                    printf("DC-%02d [%d] updated in master list MSG RECEIVED - Status: %d (%s)\n", i + 1, machineID, statusCode, incomingMessage.statusMessage);
                 }
                 found = 1;
                 break;
@@ -171,4 +175,19 @@ void removeMachineFromList(MasterList* masterList, int index)
         masterList->numberOfDCs--;
     }
 
+
+void checkInactiveMachines(MasterList* masterList)
+{
+    time_t currentTime = time(NULL);
+
+    for (int i = 0; i < masterList->numberOfDCs; i++)
+    {
+        if (difftime(currentTime, masterList->dc[i].lastTimeHeardFrom) > INACTIVE_THRESHOLD)
+        {
+            printf("DC-%02d [5d] is NON-RESPONSIVE. Removing from master list. \n", i + 1, masterList->dc[i].dcProcessID);
+            removeMachineFromList(masterList, 1);
+            i--;
+        }
+    }
+}
 
