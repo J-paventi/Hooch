@@ -1,6 +1,6 @@
 /*
 * FILE : dcManager.c
-* PROJECT : Data Reader (DR) Application
+* PROJECT : Hoochamacallit System
 * PROGRAMMERS : Josh Horsley, Kalina Cathcart, John Paventi, Daimon, Tony
 * FIRST VERSION : 2025-03-09
 * UPDATED : 2025-03-09
