@@ -15,19 +15,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-// #include <> // shared memory
+
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/msg.h>
+#include <unistd.h>
+
+#include <signal.h>
+#include <time.h>
+
+#include "logger.h" // for logging functions
+#include "shared_memory.h" // for shared memory functions
+#include "message_queue.h" // for message queue functions
+
+
+// Function prototypes ***************** TO DO ***************** (Create header file for these functions)
 
 
 
 
 
-// MAKE SURE BEFORE SUBMISSION : no output is sent to the screen in the final version of the DX application
+// MAKE SURE BEFORE SUBMISSION : no output is sent to the screen in the final version of the DX application ***************** TO DO *****************
 
 
 int dataCorrupter()
 {
     key_t shmKey; // shared memory key
     int shmID; // shared memory ID
+    Masterlist *masterList; // master list of all clients that the DR is in communication with
 
     // ********* TO DO ********* (variables to define and use 
  // pointer to master list (change to whatever the master list object is)
@@ -38,17 +54,21 @@ int dataCorrupter()
     int retryLimit = 100;
     int sleepTimer = 10;
 
+
+
+
+
 // Step 1: Attach to the shared memory created by the DR process
     // - Use ftok to generate a key
     
-    if (generateKey(shmKey) == false)
+    if (generateKey(&shmKey) == false)
     {
         printf( "\tERROR: Failed to generate a key with ftok\n"); 
         return -1;
     }
 
     // - Use shmget to get the shared memory ID
-    while (getSharedMemoryID(shmID) == false)
+    while (getSharedMemoryID(shmKey, shmID) == false)
     {
         // - If the shared memory is not created yet, sleep for 10 seconds and retry up to 100 times
         if (retryCount >= retryLimit) 
@@ -66,7 +86,7 @@ int dataCorrupter()
     
 
     // Step 2: Ensure the DX application is running in the same directory as the DR application ***************** TO DO *****************
-
+            // done by running in same directory as DR application?
 
 
 
@@ -74,27 +94,69 @@ int dataCorrupter()
     // Step 3: Read the shared memory to gain knowledge of necessary information
     // - The shared memory contains a master list of all clients that the DR is in communication with ***************** TO DO *****************
 
-    //int *sharedMemory = ;
-   // if (sharedMemory == ) 
+    masterList = (MasterList *)shmat(shmID, NULL, 0);
+    if (masterList == NULL)
     {
-
         printf("\tERROR: Failed to read shared memory\n"); 
         return -1;
-
     }
 
 
 
     // Step 4: Main processing loop
-    DX_MainLoop();
+    DX_MainLoop(masterList, shmID);
 
 
 
     // Step 5: Detach from the shared memory    ***************** TO DO *****************
     // - Use shmdt to detach from the shared memory
-
+    if (shmdt(masterList) == -1)
+    {
+        printf("\tERROR: Failed to detach from shared memory\n");
+        return -1;
+    }
 
     return 0;
+
+
+}
+
+
+
+/*
+* FUNCTION :           DX_MainLoop()
+* DESCRIPTION :        This function will contain the main processing loop for the DX application
+* PARAMETERS :         none
+* RETURNS :            none
+*/
+
+void DX_MainLoop()
+{
+
+    // - Repeat the loop until the DR application is terminated
+    while( true )                                                       // ***************** TO DO ***************** (loop until the app is terminated)
+    {
+
+        // - Sleep for a random amount of time (between 10 and 30 seconds)
+        randomSleep();
+
+
+        // - Check for the existence of the message queue between the DCs and the DR                                    ***************** TO DO *****************
+            //   - If the message queue no longer exists, log the event, detach from shared memory, and exit
+
+            int msgQueueId = msgget(IPC_PRIVATE, 0666);
+            if (msgQueueId == -1)
+            {
+                logEvent("\n The DX app detected that msgQ is gone. Assuming DR/DCs done");
+                return;
+            }
+
+
+        // - Select an action from the Wheel of Destruction randomly
+        int action = wheelOfDestruction();
+        printf("Action taken: %d\n", action);
+
+    }
 
 
 }
@@ -106,10 +168,10 @@ int dataCorrupter()
 /*
 * FUNCTION :           generateKey()  
 * DESCRIPTION :        This function will generate a key for the shared memory using the ftok function
-* PARAMETERS :         int shmkey - the key for the shared memory
+* PARAMETERS :         key_t shmkey - the key for the shared memory
 * RETURNS :            bool - true if the key was generated successfully, false otherwise
 */
-bool generateKey(shmkey)
+bool generateKey(key_t *shmkey)
 {
 
     shmKey = ftok(".", 16535); 
@@ -132,14 +194,13 @@ bool generateKey(shmkey)
 * RETURNS :             bool - true if the ID was generated successfully, false otherwise
 */
 
-getSharedMemoryID(shmID)
+bool getSharedMemoryID(key_t shmKey, int *shmID)
 {
-    shmID = shmget(shmKey, sizeof(int), 0666);
-    if (shmID == -1)
+    *shmID = shmget(shmKey, sizeof(MasterList), 0666);
+    if (*shmID == -1)
     {
         return false;
     }
-
     return true;
 }
 
@@ -217,7 +278,8 @@ int wheelOfDestruction()
         break;
 
     case 10:
-        // delete the message queue being used between DCs and DR   ********* TO DO *********
+        // delete the message queue being used between DCs and DR  
+        deleteMessageQueue();
         break;
 
     case 11:
@@ -257,7 +319,8 @@ int wheelOfDestruction()
         break;
 
     case 17:
-        // delete the message queue being used between DCs and DR ********* TO DO *********
+        // delete the message queue being used between DCs and DR 
+        deleteMessageQueue();
         break;
 
     case 18:
@@ -313,37 +376,6 @@ bool killDC(int processID)
 
 
 /*
-* FUNCTION :           DX_MainLoop()
-* DESCRIPTION :        This function will contain the main processing loop for the DX application
-* PARAMETERS :         none
-* RETURNS :            none
-*/
-
-void DX_MainLoop()
-{
-
-    // - Repeat the loop until the DR application is terminated
-    while( true )                                                       // ***************** TO DO ***************** (loop until the app is terminated)
-    {
-
-    // - Sleep for a random amount of time (between 10 and 30 seconds)
-    randomSleep();
-
-
-    // - Check for the existence of the message queue between the DCs and the DR                                    ***************** TO DO *****************
-    //   - If the message queue no longer exists, log the event, detach from shared memory, and exit
-
-
-    // - Select an action from the Wheel of Destruction randomly
-    int action = wheelOfDestruction();
-    printf("Action taken: %d\n", action);
-
-    }
-
-
-}
-
-/*
 *   FUNCTION :          randomSleep()
 *   DESCRIPTION :       This function will sleep for a random amount of time between 10 and 30 seconds
 *   PARAMETERS :        none
@@ -353,10 +385,11 @@ void DX_MainLoop()
 void randomSleep()
 {
 
-    int sleepTime = (rand() % 21) + 10; // random number between 10 and 30 ********* TO DO ********* (double check this is working right / can be written differently)
+    int sleepTime = 10 + (rand() % 21); 
     sleep(sleepTime);
 
 }
+
 
 
 /*
@@ -372,4 +405,25 @@ void logEvent(int event)
     // - Log the event to a file                                    ***************** TO DO *****************
     // - Include a timestamp and a description of the event
     
+    // use logging functions from logger.h
+
+
+}
+
+/*
+* FUNCTION :          deleteMessageQueue()
+* DESCRIPTION :       This function will delete the message queue being used between the DCs and the DR application
+* PARAMETERS :        none          
+* RETURNS :           bool - true if the message queue was deleted successfully, false otherwise              
+*/
+
+bool deleteMessageQueue()
+{
+
+    // -  delete the message queue                                  ***************** TO DO *****************                                           
+    // - If the message queue is deleted successfully, return true
+    // - If the message queue is not deleted successfully, return false
+
+    return true;
+
 }
