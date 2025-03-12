@@ -42,7 +42,7 @@ bool deleteMessageQueue();
 
 
 
-int dataCorrupter()
+int main()
 {
     key_t shmKey; // shared memory key
     int shmID; // shared memory ID
@@ -56,30 +56,44 @@ int dataCorrupter()
 
     logMessage("\n\n---DX Data Corruption Process Started---");
 
+    // test purpose ============= ERASE LATER =============
+    printf("DX Data Corruption Process Started\n");
 
-// Step 1: Attach to the shared memory created by the DR process
+
+    // Step 1: Attach to the shared memory created by the DR process
     // - Use ftok to generate a key
     
     if (generateKey(&shmKey) == false)
     {
         logMessage("ERROR: Failed to generate a key with ftok");
+
+        // test purpose ============= ERASE LATER =============
+        printf("ERROR: Failed to generate a key with ftok\n");
+
         return -1;
     }
 
     // - Use shmget to get the shared memory ID
-    while (getSharedMemoryID(shmKey, shmID) == false)
+    while (getSharedMemoryID(shmKey, &shmID) == false)
     {
         // - If the shared memory is not created yet, sleep for 10 seconds and retry up to 100 times
         if (retryCount >= retryLimit) 
         {
 
             logMessage("ERROR: Failed to attach to shared memory after 100 retries");
+
+            // test purpose ============= ERASE LATER =============
+            printf("ERROR: Failed to attach to shared memory after 100 retries\n");
+
             return -1;
 
         }
 
         retryCount++;
         sleep(sleepTimer);
+
+        // test purpose ============= ERASE LATER =============
+        printf("Failed to get shared memory ID, retrying... %d\n", retryCount);
     }
 
     
@@ -97,6 +111,10 @@ int dataCorrupter()
     if (masterList == NULL)
     {
         logMessage("ERROR: Failed to read shared memory");
+
+        // test purpose ============= ERASE LATER =============
+        printf("ERROR: Failed to read shared memory\n");
+
         return -1;
     }
 
@@ -105,17 +123,26 @@ int dataCorrupter()
     // Step 4: Main processing loop
     DX_MainLoop(masterList, shmID);
 
-
+    // test purpose ============= ERASE LATER =============
+    printf("DX Main Loop Ended\n");
 
     // Step 5: Detach from the shared memory    ***************** TO DO *****************
     // - Use shmdt to detach from the shared memory
     if (shmdt(masterList) == -1)
     {
         logMessage("ERROR: Failed to detach from shared memory");
+
+        // test purpose ============= ERASE LATER =============
+        printf("ERROR: Failed to detach from shared memory\n");
+
         return -1;
     }
 
     logMessage("---DX Data Corruption Process Ended---\n\n");
+
+    // test purpose ============= ERASE LATER =============
+    printf("DX Data Corruption Process Ended\n");
+
     return 0;
 
 
@@ -154,7 +181,9 @@ void DX_MainLoop(MasterList *masterList, int shmID)
 
         // - Select an action from the Wheel of Destruction randomly
         int action = wheelOfDestruction(masterList);
-        logMessage("Wheel of Destruction Action: %d\n", action);
+        char logMsg[100];
+        sprintf(logMsg, "Wheel of Destruction Action: %d", action);
+        logMessage(logMsg);
 
     }
 
@@ -171,11 +200,11 @@ void DX_MainLoop(MasterList *masterList, int shmID)
 * PARAMETERS :         key_t shmkey - the key for the shared memory
 * RETURNS :            bool - true if the key was generated successfully, false otherwise
 */
-bool generateKey(key_t *shmkey)
+bool generateKey(key_t *shmKey)
 {
 
-    shmKey = ftok(".", 16535); 
-    if (shmKey == -1)
+    *shmKey = ftok(".", 16535); 
+    if (*shmKey == -1)
     {
         logMessage("ERROR: Failed to generate key with ftok");
         return false;
@@ -349,18 +378,22 @@ int wheelOfDestruction(MasterList *masterList)
 
 bool killDC(MasterList *masterList, int index)
 {
+    char logMsg[100];
+
     if (index < 0 || index >= masterList->numberOfDCs)
     {
-        logMessage("ERROR: Invalid index %d", index);
+        sprintf(logMsg, "ERROR: Invalid index %d", index);
+        logMessage(logMsg);
         return false;
     }
 
-    int processID = masterList->dc[index].pid;
-    if (kill(processID, SIGHUP) == -1)
-    {
-        logMessage("ERROR: Failed to kill process %d", processID);
-        return false;
-    }
+    // int processID = masterList->dc[index].pid;
+    // if (kill(processID, SIGHUP) == -1)
+    // {
+    //     sprintf(logMsg, "ERROR: Failed to kill process %d", processID);
+    //     logMessage(logMsg);
+    //     return false;
+    // }
 
     return true;
 }
