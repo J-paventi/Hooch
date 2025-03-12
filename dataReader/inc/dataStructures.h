@@ -31,4 +31,4 @@ typedef struct {
 } MachineStatusMessage;
 
 
-#endif // DATA_STRUCTURES_H
+#endif
