@@ -30,32 +30,31 @@
 #include "message_queue.h" // for message queue functions
 
 
-// Function prototypes ***************** TO DO ***************** (Create header file for these functions)
+// Function prototypes 
+bool generateKey(key_t *shmKey);
+bool getSharedMemoryID(key_t shmKey, int *shmID);
+void DX_MainLoop(MasterList *masterList, int shmID);
+void randomSleep();
+int wheelOfDestruction(MasterList *masterList);
+bool killDC(MasterList *masterList, int index);
+bool deleteMessageQueue();
 
 
-
-
-
-// MAKE SURE BEFORE SUBMISSION : no output is sent to the screen in the final version of the DX application ***************** TO DO *****************
 
 
 int dataCorrupter()
 {
     key_t shmKey; // shared memory key
     int shmID; // shared memory ID
-    Masterlist *masterList; // master list of all clients that the DR is in communication with
+    MasterList *masterList; // master list of all clients that the DR is in communication with
 
-    // ********* TO DO ********* (variables to define and use 
- // pointer to master list (change to whatever the master list object is)
- // message queue ID 
- // 
 
     int retryCount = 0; 
     int retryLimit = 100;
     int sleepTimer = 10;
 
 
-
+    logMessage("\n\n---DX Data Corruption Process Started---");
 
 
 // Step 1: Attach to the shared memory created by the DR process
@@ -63,7 +62,7 @@ int dataCorrupter()
     
     if (generateKey(&shmKey) == false)
     {
-        printf( "\tERROR: Failed to generate a key with ftok\n"); 
+        logMessage("ERROR: Failed to generate a key with ftok");
         return -1;
     }
 
@@ -74,7 +73,7 @@ int dataCorrupter()
         if (retryCount >= retryLimit) 
         {
 
-            printf("\tERROR: Failed to attach to shared memory after %d retries\n", retryLimit); 
+            logMessage("ERROR: Failed to attach to shared memory after 100 retries");
             return -1;
 
         }
@@ -97,7 +96,7 @@ int dataCorrupter()
     masterList = (MasterList *)shmat(shmID, NULL, 0);
     if (masterList == NULL)
     {
-        printf("\tERROR: Failed to read shared memory\n"); 
+        logMessage("ERROR: Failed to read shared memory");
         return -1;
     }
 
@@ -112,10 +111,11 @@ int dataCorrupter()
     // - Use shmdt to detach from the shared memory
     if (shmdt(masterList) == -1)
     {
-        printf("\tERROR: Failed to detach from shared memory\n");
+        logMessage("ERROR: Failed to detach from shared memory");
         return -1;
     }
 
+    logMessage("---DX Data Corruption Process Ended---\n\n");
     return 0;
 
 
@@ -130,7 +130,7 @@ int dataCorrupter()
 * RETURNS :            none
 */
 
-void DX_MainLoop()
+void DX_MainLoop(MasterList *masterList, int shmID)
 {
 
     // - Repeat the loop until the DR application is terminated
@@ -144,17 +144,17 @@ void DX_MainLoop()
         // - Check for the existence of the message queue between the DCs and the DR                                    ***************** TO DO *****************
             //   - If the message queue no longer exists, log the event, detach from shared memory, and exit
 
-            int msgQueueId = msgget(IPC_PRIVATE, 0666);
+            int msgQueueId = msgget(masterList->msgQueueID, 0666);
             if (msgQueueId == -1)
             {
-                logEvent("\n The DX app detected that msgQ is gone. Assuming DR/DCs done");
+                logMessage("The DX app detected that msgQ is gone. Assuming DR/DCs done");
                 return;
             }
 
 
         // - Select an action from the Wheel of Destruction randomly
-        int action = wheelOfDestruction();
-        printf("Action taken: %d\n", action);
+        int action = wheelOfDestruction(masterList);
+        logMessage("Wheel of Destruction Action: %d\n", action);
 
     }
 
@@ -177,6 +177,7 @@ bool generateKey(key_t *shmkey)
     shmKey = ftok(".", 16535); 
     if (shmKey == -1)
     {
+        logMessage("ERROR: Failed to generate key with ftok");
         return false;
     }
 
@@ -199,6 +200,7 @@ bool getSharedMemoryID(key_t shmKey, int *shmID)
     *shmID = shmget(shmKey, sizeof(MasterList), 0666);
     if (*shmID == -1)
     {
+        logMessage("ERROR: Failed to get shared memory ID with shmget");
         return false;
     }
     return true;
@@ -214,10 +216,10 @@ bool getSharedMemoryID(key_t shmKey, int *shmID)
 * RETURNS :           int - the selected action
 */
 
-int wheelOfDestruction()
+int wheelOfDestruction(MasterList *masterList)
 {
     int action = rand() % 21; // random number between 0 and 20
-    int processID = -1; // Process ID set to a number out of range to prevent accidental killing of a process
+   
 
     switch(action)
     {
@@ -227,44 +229,37 @@ int wheelOfDestruction()
 
     case 1:
         // kill DC-01 process
-        processID = 1;
-        killDC(processID);
+        killDC(masterList, 0);
         break;
     
     case 2:
         // kill DC-03 process
-        processID = 3;
-        killDC(processID);
+        killDC(masterList, 2);
         break;
 
     case 3:
         // kill DC-02 process
-        processID = 2;
-        killDC(processID);
+        killDC(masterList, 1);
         break;
 
     case 4:
         // kill DC-01 process
-        processID = 1;
-        killDC(processID);
+        killDC(masterList, 0);
         break;
 
     case 5:
         // kill DC-03 process
-        processID = 3;
-        killDC(processID);
+        killDC(masterList, 2);
         break;
 
     case 6:
         // kill DC-02 process
-        processID = 2;
-        killDC(processID);
+        killDC(masterList, 1);
         break;
 
     case 7:
         // kill DC-04 process
-        processID = 4;
-        killDC(processID);
+        killDC(masterList, 3);
         break;
 
     case 8:
@@ -273,8 +268,7 @@ int wheelOfDestruction()
 
     case 9:
         // kill DC-05 process
-        processID = 5;
-        killDC(processID);
+        killDC(masterList, 4);
         break;
 
     case 10:
@@ -284,38 +278,32 @@ int wheelOfDestruction()
 
     case 11:
         // kill DC-01 process
-        processID = 1;
-        killDC(processID);
+        killDC(masterList, 0);
         break;
 
     case 12:
         // kill DC-06 process
-        processID = 6;
-        killDC(processID);
+        killDC(masterList, 5);
         break;
 
     case 13:
         // kill DC-02 process
-        processID = 2;
-        killDC(processID);
+        killDC(masterList, 1);
         break;
 
     case 14:
         // kill DC-07 process
-        processID = 7;
-        killDC(processID);
+        killDC(masterList, 6);
         break;
 
     case 15:
         // kill DC-03 process
-        processID = 3;
-        killDC(processID);
+        killDC(masterList, 2);
         break;
 
     case 16:
         // kill DC-08 process
-        processID = 8;
-        killDC(processID);
+        killDC(masterList, 7);
         break;
 
     case 17:
@@ -325,8 +313,7 @@ int wheelOfDestruction()
 
     case 18:
         // kill DC-09 process
-        processID = 9;
-        killDC(processID);
+        killDC(masterList, 8);
         break;
 
     case 19:
@@ -335,8 +322,7 @@ int wheelOfDestruction()
 
     case 20:
         // kill DC-10 process
-        processID = 10;
-        killDC(processID);
+        killDC(masterList, 9);
         break;
 
     default:
@@ -356,15 +342,23 @@ int wheelOfDestruction()
 /*
 * FUNCTION :           killDC()
 * DESCRIPTION :        This function will kill a DC process
-* PARAMETERS :         int processID - the ID of the process to kill
+* PARAMETERS :         MasterList *masterList - pointer to the master list in shared memory
+*                      int index - the index of the DC process in the master list
 * RETURNS :            bool - true if the process was killed successfully, false otherwise         
 */
 
-bool killDC(int processID)
+bool killDC(MasterList *masterList, int index)
 {
-
-    //if (kill(processID, SIGKILL) == -1)           ***************** TO DO ***************** (kill the process properly)
+    if (index < 0 || index >= masterList->numberOfDCs)
     {
+        logMessage("ERROR: Invalid index %d", index);
+        return false;
+    }
+
+    int processID = masterList->dc[index].pid;
+    if (kill(processID, SIGHUP) == -1)
+    {
+        logMessage("ERROR: Failed to kill process %d", processID);
         return false;
     }
 
@@ -392,23 +386,6 @@ void randomSleep()
 
 
 
-/*
-* FUNCTION :           logEvent()
-* DESCRIPTION :        This function will log significant events
-* PARAMETERS :         int event - the event to log
-* RETURNS :            none
-*/
-
-void logEvent(int event)
-{
-
-    // - Log the event to a file                                    ***************** TO DO *****************
-    // - Include a timestamp and a description of the event
-    
-    // use logging functions from logger.h
-
-
-}
 
 /*
 * FUNCTION :          deleteMessageQueue()
@@ -420,10 +397,33 @@ void logEvent(int event)
 bool deleteMessageQueue()
 {
 
-    // -  delete the message queue                                  ***************** TO DO *****************                                           
-    // - If the message queue is deleted successfully, return true
-    // - If the message queue is not deleted successfully, return false
+    key_t msgKey;
+    int msgQueueID;
+
+    // Generate the key for the message queue
+    msgKey = ftok(".", MSG_KEY);
+    if (msgKey == -1) 
+    {
+        perror("ftok");
+        return false;
+    }
+
+    // Get the message queue ID
+    msgQueueID = msgget(msgKey, 0666);
+    if (msgQueueID == -1) 
+    {
+        perror("msgget");
+        return false;
+    }
+
+    // Delete the message queue
+    if (msgctl(msgQueueID, IPC_RMID, NULL) == -1) 
+    {
+        perror("msgctl");
+        return false;
+    }
 
     return true;
+
 
 }
