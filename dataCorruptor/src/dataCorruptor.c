@@ -110,7 +110,7 @@ int main()
     // - The shared memory contains a master list of all clients that the DR is in communication with ***************** TO DO *****************
 
     masterList = (MasterList *)shmat(shmID, NULL, 0);
-    if (masterList == NULL)
+    if (masterList == (void*)-1)
     {
         logMessage("ERROR: Failed to read shared memory");
 
@@ -213,7 +213,7 @@ void DX_MainLoop(MasterList *masterList, int shmID)
 bool generateKey(key_t *shmKey)
 {
 
-    *shmKey = ftok("/tmp/keyfile", 16535); 
+    *shmKey = ftok(".", 16535); 
     if (*shmKey == -1)
     {
         logMessage("ERROR: Failed to generate key with ftok");

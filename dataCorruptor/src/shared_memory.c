@@ -9,7 +9,7 @@ int initializeSharedMemory(MasterList** masterListPtr, int msgQueueID) {
     int shmID;
     MasterList* masterList;
 
-    shmKey = ftok(".", SHM_KEY);
+    shmKey = ftok("/dataReade/src", SHM_KEY);
     if (shmKey == -1) {
         logMessage("Error: Failed to generate shared memory key");
         return -1;
