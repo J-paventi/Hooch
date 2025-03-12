@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <time.h>
 
-void logStatus(MachineStatusMessage* msg) {
-    FILE* logFP = fopen(LOG_FILE, "a");
+void logStatus(char* logMsg, int statusNum, const char* logFilePath) {
+    FILE* logFP = fopen(logFilePath, "a");
     if (logFP == NULL) {
         perror("Failed to open log file");
         return;
@@ -32,8 +32,6 @@ void logStatus(MachineStatusMessage* msg) {
     char timestamp[20];
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    fprintf(logFP, "[%s] : MSG TYPE [%ld] | MACHINE ID [%d] | STATUS [%d] - %s\n",
-            timestamp, msg->msgType, msg->machineID, msg->statusCode, msg->statusMessage);
-
+    fprintf(logFP, "[%s] : Status [%d] - %s\n", timestamp, statusNum, logMsg);
     fclose(logFP);
 }
