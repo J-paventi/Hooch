@@ -58,3 +58,4 @@ int main(void) {
     cleanup(shmID, msgQueueID, masterList);
     return 0; 
 }
+

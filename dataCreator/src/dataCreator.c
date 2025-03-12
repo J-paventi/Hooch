@@ -4,7 +4,7 @@
 #include <stdlib.h> 
 #include <sys/ipc.h> 
 #include <sys/msg.h>
-#include "data_structures.h"
+#include "dataStructures.h"
 
 #define MIN_MSG_VAL      0
 #define MAX_MSG_VAL      6
@@ -19,9 +19,13 @@ char* statusMsgToSend(int statusNum);
 int getDelayInSeconds(void);
 void delay(int numberOfSeconds);
 void logStatus(char* logMsg, int statusCode);
+int sendMsg(MachineStatusMessage statusMessage, int msgid);
+
 
 void main(){ 
-        FILE* logFP;
+        printf("DEBUG 1");
+        logMessage("DEBUG 1");
+        //FILE* logFP;
         int statusCode = 0;
         char statusMsg[MAX_BUFFER];
 
@@ -33,11 +37,14 @@ void main(){
         while(msgid == NO_QUEUE){ 
                 msgid = msgget(key, IPC_EXCL | 0666);   // checks for the queue but does not make it 
                 delay(MIN_DELAY); 
+                printf("DEBUG 2");
+                logMessage("DEBUG 2");
         } 
         
         logStatus(strcpy(statusMsg, statusMsgToSend(statusCode)), statusCode);
-
+        printf("DEBUG 3");
         while(statusCode != 6){
+                printf("DEBUG 4");
                 int seconds = getDelayInSeconds();
                 delay(seconds);
                 statusCode = getRandomStatusMsg();
@@ -92,33 +99,37 @@ int getRandomStatusMsg(){
 }
 
 char* statusMsgToSend(int statusNum){
-        char statusRtrn[MAX_BUFFER] = NULL;
+    static char statusRtrn[MAX_BUFFER];
 
-        switch(statusNum){
-                case 0:
-                        statusRtrn[MAX_BUFFER] = "Everything is OKAY.";
-                        break;
-                case 1:
-                        statusRtrn[MAX_BUFFER] = "Hydraulic Press Failure.";
-                        break;
-                case 2:
-                        statusRtrn[MAX_BUFFER] = "Safety Button Failure.";
-                        break;
-                case 3:
-                        statusRtrn[MAX_BUFFER] = "No Raw Material in Processing.";
-                        break;
-                case 4:
-                        statusRtrn[MAX_BUFFER] = "Operating Temperature Out of Range.";
-                        break;
-                case 5:
-                        statusRtrn[MAX_BUFFER] = "Operator Error.";
-                        break;
-                case 6:
-                        statusRtrn[MAX_BUFFER] = "Machine is Offline.";
-                        break;
-        }
+    switch(statusNum)
+    {
+            case 0:
+                    statusRtrn[MAX_BUFFER] = "Everything is OKAY.";
+                    break;
+            case 1:
+                    statusRtrn[MAX_BUFFER] = "Hydraulic Press Failure.";
+                    break;
+            case 2:
+                    statusRtrn[MAX_BUFFER] = "Safety Button Failure.";
+                    break;
+            case 3:
+                    statusRtrn[MAX_BUFFER] = "No Raw Material in Processing.";
+                    break;
+            case 4:
+                    statusRtrn[MAX_BUFFER] = "Operating Temperature Out of Range.";
+                    break;
+            case 5:
+                    statusRtrn[MAX_BUFFER] = "Operator Error.";
+                    break;
+            case 6:
+                    statusRtrn[MAX_BUFFER] = "Machine is Offline.";
+                    break;
+    }
 
-        return statusRtrn;
+    statusRtrn[MAX_BUFFER - 1] = '\0';
+
+
+    return statusRtrn;
 }
 
 int getDelayInSeconds(){
