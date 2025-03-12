@@ -45,7 +45,7 @@ void updateDCStatus(MasterList* masterList, pid_t machineID, int statusCode, con
         if (masterList->dc[i].dcProcessID == machineID) {
             masterList->dc[i].lastTimeHeardFrom = time(NULL);
 
-            if (statusCode == 6) {
+           if (statusCode == 6) {
                 char logMsg[256];
                 snprintf(logMsg, sizeof(logMsg), "DC-%02d [%d] has gone OFFLINE. Removing from master list.", 
                          i + 1, machineID);
@@ -154,5 +154,6 @@ void cleanup(int shmID, int msgQueueID, MasterList* masterList) {
     cleanupMessageQueue(msgQueueID);
     
     logMessage("Cleanup complete. Exiting...");
+   masterList->terminateDC = true;
     exit(EXIT_SUCCESS);
 }

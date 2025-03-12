@@ -59,6 +59,7 @@ int main(void) {
     msgQueueID = initializeMessageQueue();
     if (msgQueueID == -1) {
         logMessage("Failed to initialize message queue. Exiting.");
+        masterList->terminateDC = true;
         exit(EXIT_FAILURE);
     }
 
@@ -67,6 +68,7 @@ int main(void) {
     if (shmID == -1) {
         logMessage("Failed to initialize shared memory. Exiting.");
         cleanupMessageQueue(msgQueueID);
+        masterList->terminateDC = true;
         exit(EXIT_FAILURE);
     }
 
