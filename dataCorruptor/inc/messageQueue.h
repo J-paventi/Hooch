@@ -1,7 +1,7 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
-#include "data_structures.h"
+#include "dataStructures.h"
 
 // Initialize message queue
 int initializeMessageQueue();

@@ -1,7 +1,7 @@
 #ifndef SHARED_MEMORY_H
 #define SHARED_MEMORY_H
 
-#include "data_structures.h"
+#include "dataStructures.h"
 
 // Initialize shared memory
 int initializeSharedMemory(MasterList** masterListPtr, int msgQueueID);

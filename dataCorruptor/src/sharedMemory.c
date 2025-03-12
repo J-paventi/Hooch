@@ -1,4 +1,4 @@
-#include "shared_memory.h"
+#include "sharedMemory.h"
 #include "logger.h"
 #include <sys/shm.h>
 #include <sys/ipc.h>

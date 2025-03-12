@@ -25,19 +25,20 @@
 #include <signal.h>
 #include <time.h>
 
+#include "dataCorruptor.h"
 #include "logger.h" // for logging functions
-#include "shared_memory.h" // for shared memory functions
-#include "message_queue.h" // for message queue functions
+#include "sharedMemory.h" // for shared memory functions
+#include "messageQueue.h" // for message queue functions
 
 
 // Function prototypes 
-bool generateKey(key_t *shmKey);
-bool getSharedMemoryID(key_t shmKey, int *shmID);
-void DX_MainLoop(MasterList *masterList, int shmID);
-void randomSleep();
-int wheelOfDestruction(MasterList *masterList);
-bool killDC(MasterList *masterList, int index);
-bool deleteMessageQueue();
+// bool generateKey(key_t *shmKey);
+// bool getSharedMemoryID(key_t shmKey, int *shmID);
+// void DX_MainLoop(MasterList *masterList, int shmID);
+// void randomSleep();
+// int wheelOfDestruction(MasterList *masterList);
+// bool killDC(MasterList *masterList, int index);
+// bool deleteMessageQueue();
 
 
 /*
