@@ -79,20 +79,33 @@ int main()
 // Main processing loop for DX
 void DX_MainLoop(MasterList *masterList, int shmID)
 {
+
+
+    key_t msgKey = ftok("/tmp/keyfile", MSG_KEY);
+    if (msgKey == -1)
+    {
+        logMessage("ERROR: Failed to generate message queue key");
+        return;
+    }
+
+
     while (true)
     {
         // Step 1: Sleep for a random amount of time (10-30 seconds)
         randomSleep();
 
+
+
+        logMessage("DX: Checking for message queue");
         // Step 2: Check for the existence of the message queue
-        int msgQueueId = msgget(masterList->msgQueueID, 0666);
+        int msgQueueId = msgget(msgKey, IPC_EXCL | 0666);
 
 
 
 
 
 
-        
+
         //       msgid = msgget(key, IPC_EXCL | 0666);
         if (msgQueueId == -1)
         {
@@ -100,8 +113,13 @@ void DX_MainLoop(MasterList *masterList, int shmID)
             break; // Exit the loop
         }
 
+        logMessage("DX: Message queue found");
+
         // Step 3: Select and execute an action from the Wheel of Destruction
         int action = wheelOfDestruction(masterList);
+
+        logMessage("DX: Executed action from Wheel of Destruction");
+
         char logMsg[100];
         sprintf(logMsg, "Wheel of Destruction Action: %d", action);
         logMessage(logMsg);
