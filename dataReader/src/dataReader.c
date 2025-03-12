@@ -1,7 +1,7 @@
 /*
 * FILE : dataReader.c
 * PROJECT : Hoochamacallit System
-* PROGRAMMERS : Josh Horsley,
+* PROGRAMMERS : Josh Horsley, Kalina Cathcart, John Paventi, Daimon Quin, Tony Yang
 * FIRST VERSION : 2025-03-09
 * UPDATED : 2025-03-09
 * DESCRIPTION :

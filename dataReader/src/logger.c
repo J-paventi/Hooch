@@ -1,7 +1,7 @@
 /*
 * FILE : logger.c
 * PROJECT : Hoochamacallit System
-* PROGRAMMERS : Josh Horsley, 
+* PROGRAMMERS : Josh Horsley, Kalina Cathcart, John Paventi, Daimon Quin, Tony Yang
 * FIRST VERSION : 2025-03-09
 * UPDATED : 2025-03-09
 * DESCRIPTION :
@@ -20,18 +20,15 @@
 #include <stdio.h>
 #include <time.h>
 
-void logStatus(char* logMsg, int statusNum, const char* logFilePath) {
-    FILE* logFP = fopen(logFilePath, "a");
-    if (logFP == NULL) {
-        perror("Failed to open log file");
-        return;
+void logMessage(const char* message) {
+    FILE* logFile = fopen(LOG_FILE, "a");
+    if (logFile) {
+        time_t now = time(NULL);
+        struct tm* tm_info = localtime(&now);
+        char timestamp[20];
+        strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tm_info);
+
+        fprintf(logFile, "[%s] : %s\n", timestamp, message);
+        fclose(logFile);
     }
-
-    time_t now = time(NULL);
-    struct tm* tm_info = localtime(&now);
-    char timestamp[20];
-    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", tm_info);
-
-    fprintf(logFP, "[%s] : Status [%d] - %s\n", timestamp, statusNum, logMsg);
-    fclose(logFP);
 }
