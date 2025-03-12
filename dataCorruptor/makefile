@@ -1,5 +1,5 @@
 dx: ./obj/dataCorruptor.o ./obj/logger.o ./obj/shared_memory.o ./obj/message_queue.o
-	cc ./obj/dataCorruptor.o ./obj/logger.o ./obj/shared_memory.o ./obj/message_queue.o -o dx
+	cc ./obj/dataCorruptor.o ./obj/logger.o ./obj/shared_memory.o ./obj/message_queue.o -o ./bin/dx
 
 ./obj/dataCorruptor.o: ./src/dataCorruptor.c
 	cc -Wall -Iinc -c ./src/dataCorruptor.c -o ./obj/dataCorruptor.o
