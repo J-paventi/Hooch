@@ -4,7 +4,9 @@
 #include <stdlib.h> 
 #include <sys/ipc.h> 
 #include <sys/msg.h>
+#include <unistd.h>
 #include "dataStructures.h"
+#include "logger.h"
 
 #define MIN_MSG_VAL      0
 #define MAX_MSG_VAL      6
@@ -22,7 +24,8 @@ void logStatus(char* logMsg, int statusCode);
 int sendMsg(MachineStatusMessage statusMessage, int msgid);
 
 
-void main(){ 
+int main(void)
+{ 
         printf("DEBUG 1");
         logMessage("DEBUG 1");
         //FILE* logFP;
@@ -59,8 +62,8 @@ void main(){
                 strcpy(statusMessage.statusMessage, statusMsg);
                 
                 // SEND MESSAGE FUNCTION
-                sendMsg(statusMessage, msgid);
-                if (sendMsg == -1)
+                
+                if (sendMsg(statusMessage, msgid) == -1)
                 {
                         printf("Error: Failed to send message\n");
                         exit(EXIT_FAILURE);
@@ -71,7 +74,7 @@ void main(){
  
 
 
-        return;  
+        return 0;  
 } 
 
 void logStatus(char* logMsg, int statusNum){
@@ -98,38 +101,22 @@ int getRandomStatusMsg(){
         return status;
 }
 
-char* statusMsgToSend(int statusNum){
-    static char statusRtrn[MAX_BUFFER];
-
-    switch(statusNum)
-    {
-            case 0:
-                    statusRtrn[MAX_BUFFER] = "Everything is OKAY.";
-                    break;
-            case 1:
-                    statusRtrn[MAX_BUFFER] = "Hydraulic Press Failure.";
-                    break;
-            case 2:
-                    statusRtrn[MAX_BUFFER] = "Safety Button Failure.";
-                    break;
-            case 3:
-                    statusRtrn[MAX_BUFFER] = "No Raw Material in Processing.";
-                    break;
-            case 4:
-                    statusRtrn[MAX_BUFFER] = "Operating Temperature Out of Range.";
-                    break;
-            case 5:
-                    statusRtrn[MAX_BUFFER] = "Operator Error.";
-                    break;
-            case 6:
-                    statusRtrn[MAX_BUFFER] = "Machine is Offline.";
-                    break;
-    }
-
-    statusRtrn[MAX_BUFFER - 1] = '\0';
-
-
-    return statusRtrn;
+char* statusMsgToSend(int statusNum) 
+{
+        static char statusRtrn[MAX_BUFFER];  // Static so it persists after the function returns
+    
+        switch (statusNum) {
+            case 0: strcpy(statusRtrn, "Everything is OKAY."); break;
+            case 1: strcpy(statusRtrn, "Hydraulic Press Failure."); break;
+            case 2: strcpy(statusRtrn, "Safety Button Failure."); break;
+            case 3: strcpy(statusRtrn, "No Raw Material in Processing."); break;
+            case 4: strcpy(statusRtrn, "Operating Temperature Out of Range."); break;
+            case 5: strcpy(statusRtrn, "Operator Error."); break;
+            case 6: strcpy(statusRtrn, "Machine is Offline."); break;
+            default: strcpy(statusRtrn, "Unknown Status."); break;
+        }
+    
+        return statusRtrn;
 }
 
 int getDelayInSeconds(){
