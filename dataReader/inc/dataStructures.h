@@ -10,7 +10,7 @@
 #define SHM_KEY 16535
 #define MSG_KEY 1234 //temporary key number
 #define INACTIVE_THRESHOLD 35 //seconds
-#define LOG_FILE "tmp/dataMonitor.log"
+#define LOG_FILE "/tmp/dataMonitor.log"
 
 typedef struct {
     pid_t dcProcessID;
@@ -21,6 +21,7 @@ typedef struct {
     int msgQueueID;
     int numberOfDCs;
     DCInfo dc[MAX_DC_ROLES];
+    bool terminateDR;
 } MasterList;
 
 typedef struct {
