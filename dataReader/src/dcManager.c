@@ -154,6 +154,6 @@ void cleanup(int shmID, int msgQueueID, MasterList* masterList) {
     cleanupMessageQueue(msgQueueID);
     
     logMessage("Cleanup complete. Exiting...");
-   masterList->terminateDC = true;
+   masterList->terminateDR = true;
     exit(EXIT_SUCCESS);
 }

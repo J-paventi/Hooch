@@ -6,7 +6,6 @@
 #include <sys/msg.h>
 #include <unistd.h>
 #include "dataStructures.h"
-#include "logger.h"
 
 #define MIN_MSG_VAL      0
 #define MAX_MSG_VAL      6
@@ -27,7 +26,7 @@ int main(void){
     char statusMsg[MAX_BUFFER];
 
     // Ensure the file for ftok exists
-    FILE *file = fopen("/home/daimon/Documents/tmp/somefile", "w");
+    FILE *file = fopen("/tmp/keyfile", "w");
     if (file == NULL) {
         perror("Failed to create file for ftok");
         exit(EXIT_FAILURE);
@@ -36,7 +35,7 @@ int main(void){
 
     // default the assumption of no queue to enter while-loop to check for queue 
     int msgid = NO_QUEUE; 
-    key_t key = ftok("/home/daimon/Documents/tmp/somefile", MSG_KEY); 
+    key_t key = ftok("/tmp/keyfile", MSG_KEY); 
     if (key == -1) {
         perror("ftok failed");
         exit(EXIT_FAILURE);
