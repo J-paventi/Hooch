@@ -40,7 +40,14 @@ bool killDC(MasterList *masterList, int index);
 bool deleteMessageQueue();
 
 
-
+/*
+* FUNCTION :           main()
+* DESCRIPTION :        This function will contain the main logic for the dataCorruptor program. 
+*                      It will attach to the shared memory created by the DR process. 
+*                      It will then read the shared memory to gain knowledge of necessary information,
+* PARAMETERS :         none
+* RETURNS :            int - 0 if the program executed successfully, -1 otherwise
+*/
 
 int main()
 {
@@ -380,6 +387,7 @@ bool killDC(MasterList *masterList, int index)
 {
     char logMsg[100];
 
+    // Check if the index is valid
     if (index < 0 || index >= masterList->numberOfDCs)
     {
         sprintf(logMsg, "ERROR: Invalid index %d", index);
@@ -387,13 +395,28 @@ bool killDC(MasterList *masterList, int index)
         return false;
     }
 
-    // int processID = masterList->dc[index].pid;
-    // if (kill(processID, SIGHUP) == -1)
-    // {
-    //     sprintf(logMsg, "ERROR: Failed to kill process %d", processID);
-    //     logMessage(logMsg);
-    //     return false;
-    // }
+    // Get the process ID from the master list
+    pid_t processID = masterList->dc[index].dcProcessID;
+
+    // Check if the process ID is valid
+    if (processID <= 0)
+    {
+        sprintf(logMsg, "ERROR: Invalid process ID %d for index %d", processID, index);
+        logMessage(logMsg);
+        return false;
+    }
+
+    // Attempt to kill the process
+    if (kill(processID, SIGKILL) == -1)
+    {
+        sprintf(logMsg, "ERROR: Failed to kill process %d", processID);
+        logMessage(logMsg);
+        return false;
+    }
+
+    // Log the successful kill
+    sprintf(logMsg, "Successfully killed process %d", processID);
+    logMessage(logMsg);
 
     return true;
 }
