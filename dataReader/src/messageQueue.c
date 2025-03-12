@@ -41,7 +41,7 @@ int initializeMessageQueue() {
     key_t msgKey;
     int msgQueueID;
 
-    msgKey = ftok("/home/daimon/Documents/tmp/somefile", MSG_KEY);
+    msgKey = ftok("/tmp/keyfile", MSG_KEY);
     if (msgKey == -1) {
         logMessage("Error: Failed to generate message queue key");
         return -1;
