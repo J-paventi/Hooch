@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define MAX_DC_ROLES 10
 #define SHM_KEY 16535
@@ -20,6 +21,7 @@ typedef struct {
 typedef struct {
     int msgQueueID;
     int numberOfDCs;
+    bool terminateDR;
     DCInfo dc[MAX_DC_ROLES];
 } MasterList;
 

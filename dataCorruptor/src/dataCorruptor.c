@@ -28,7 +28,7 @@
 #include "logger.h" // for logging functions
 #include "shared_memory.h" // for shared memory functions
 #include "message_queue.h" // for message queue functions
-
+#include "data_structures.h"
 
 // Function prototypes 
 bool generateKey(key_t *shmKey);
@@ -213,7 +213,7 @@ void DX_MainLoop(MasterList *masterList, int shmID)
 bool generateKey(key_t *shmKey)
 {
 
-    *shmKey = ftok(".", 16535); 
+    *shmKey = ftok("/tmp/keyfile", 16535); 
     if (*shmKey == -1)
     {
         logMessage("ERROR: Failed to generate key with ftok");
@@ -236,7 +236,7 @@ bool generateKey(key_t *shmKey)
 
 bool getSharedMemoryID(key_t shmKey, int *shmID)
 {
-    *shmID = shmget(shmKey, sizeof(MasterList), 0666);
+    *shmID = shmget(shmKey, sizeof(MasterList), 0660);
     if (*shmID == -1)
     {
         logMessage("ERROR: Failed to get shared memory ID with shmget");
