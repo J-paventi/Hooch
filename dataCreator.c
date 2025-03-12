@@ -39,7 +39,7 @@ int main(void){
         int msgid = NO_QUEUE; 
         // is this actually sending it, or just writing it? Need to verify this with Craig 
         key_t key = ftok(".", 16535);           // I think this should connect to the message queue memory? I'm not too sure 
-         
+        
         while(msgid == NO_QUEUE){ 
                 msgid = msgget(key, 0666);   // checks for the queue but does not make it 
                 delay(MIN_DELAY); 

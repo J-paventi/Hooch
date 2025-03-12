@@ -10,7 +10,7 @@
 #define SHM_KEY 16535
 #define MSG_KEY 1234 //temporary key number
 #define INACTIVE_THRESHOLD 35 //seconds
-#define LOG_FILE "tmp/dataMonitor.log"
+#define LOG_FILE "/tmp/dataCreator.log"
 
 typedef struct {
     pid_t dcProcessID;

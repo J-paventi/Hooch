@@ -74,14 +74,14 @@ int main(void) {
 
     logMessage("DC Monitor started successfully");
     sleep(15); // Allow time for DCs to start
-
     // Main monitoring loop
-    while (running) {
-        
+    while (running) 
+    {
         checkInactiveMachines(masterList, shmID, msgQueueID);
 
         // Receive and process messages
-        if (receiveMessage(masterList->msgQueueID, &incomingMessage) == 0) {
+        if (receiveMessage(masterList->msgQueueID, &incomingMessage) == 0) 
+        {
             updateDCStatus(masterList, incomingMessage.machineID, incomingMessage.statusCode, incomingMessage.statusMessage);
         }
 
