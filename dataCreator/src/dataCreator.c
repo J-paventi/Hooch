@@ -60,6 +60,7 @@ int main(void){
 
         // Prepare the message
         MachineStatusMessage statusMessage;
+	statusMessage.msgType = 1;
         statusMessage.machineID = getpid();
         statusMessage.statusCode = statusCode;
         strncpy(statusMessage.statusMessage, statusMsg, sizeof(statusMessage.statusMessage) - 1);
