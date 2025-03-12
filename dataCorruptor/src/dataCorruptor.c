@@ -103,11 +103,6 @@ int main()
         printf("Failed to get shared memory ID, retrying... %d\n", retryCount);
     }
 
-    
-
-    // Step 2: Ensure the DX application is running in the same directory as the DR application ***************** TO DO *****************
-            // done by running in same directory as DR application?
-
 
 
 
@@ -170,6 +165,14 @@ void DX_MainLoop(MasterList *masterList, int shmID)
     // - Repeat the loop until the DR application is terminated
     while( true )                                                       // ***************** TO DO ***************** (loop until the app is terminated)
     {
+
+
+        // Check for termination condition, if true, then DR is closed and DX should also end
+        if (masterList->terminateDR)
+        {
+            logMessage("DR application terminated. Exiting DX_MainLoop.");
+            break;
+        }
 
         // - Sleep for a random amount of time (between 10 and 30 seconds)
         randomSleep();
