@@ -15,19 +15,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <unistd.h>
-
 #include <signal.h>
 #include <time.h>
-
 #include "logger.h" // for logging functions
-#include "shared_memory.h" // for shared memory functions
-#include "message_queue.h" // for message queue functions
 #include "data_structures.h"
 
 // Function prototypes 
