@@ -1,5 +1,5 @@
 dx: ./obj/dataCorruptor.o ./obj/logger.o
-	cc ./obj/dataCorruptor.o ./obj/logger.o -o ./bin/dx
+	cc ./obj/dataCorruptor.o ./obj/logger.o -o ../dataReader/bin/dx
 
 ./obj/dataCorruptor.o: ./src/dataCorruptor.c
 	cc -Wall -Iinc -c ./src/dataCorruptor.c -o ./obj/dataCorruptor.o
@@ -8,7 +8,7 @@ dx: ./obj/dataCorruptor.o ./obj/logger.o
 	cc -Wall -Iinc -c ./src/logger.c -o ./obj/logger.o
 
 clean:
-	rm -f dx
+	rm -f ../dataReader/bin/dx
 	rm -f ./obj/dataCorruptor.o
 	rm -f ./obj/logger.o
 
