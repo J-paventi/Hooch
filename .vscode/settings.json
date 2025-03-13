@@ -58,6 +58,7 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "data_structures.h": "c",
-    "logger.h": "c"
+    "logger.h": "c",
+    "unistd.h": "c"
   }
 }

@@ -13,6 +13,8 @@ TARGET = $(BIN_DIR)/dataCreator
 
 # Source files
 SRC_FILES = $(SRC_DIR)/dataCreator.c \
+            $(SRC_DIR)/dataMessenger.c \
+            $(SRC_DIR)/dataStatus.c
 
 # Object files (replacing src/ with obj/ and .c with .o)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
@@ -31,7 +33,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # Include dependencies
-$(OBJ_DIR)/dataCreator.o: $(INC_DIR)/dataStructures.h
+$(OBJ_DIR)/dataCreator.o: $(INC_DIR)/dataStructures.h $(INC_DIR)/dataMessenger.h $(INC_DIR)/dataStatus.h
+$(OBJ_DIR)/dataMessenger.o: $(INC_DIR)/dataMessenger.h $(INC_DIR)/dataStructures.h $(INC_DIR)/dataStatus.h
+$(OBJ_DIR)/dataStatus.o: $(INC_DIR)/dataStructures.h $(INC_DIR)/dataStatus.h
 
 # Clean
 clean:

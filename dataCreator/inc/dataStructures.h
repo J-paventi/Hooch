@@ -11,6 +11,7 @@
 #define MSG_KEY 1234 //temporary key number
 #define INACTIVE_THRESHOLD 35 //seconds
 #define LOG_FILE "/tmp/dataCreator.log"
+#define KEY_FILE "/tmp/keyfile"
 
 typedef struct {
     pid_t dcProcessID;

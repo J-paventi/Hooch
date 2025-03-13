@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/tony/sys/a3/Hooch",
-      "program": "/home/tony/sys/a3/Hooch/build/Debug/outDebug",
+      "cwd": "/home/daimon/Documents/SysProgA3/Hooch/dataCorruptor/src",
+      "program": "/home/daimon/Documents/SysProgA3/Hooch/dataCorruptor/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
